@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>問長年・人物總卷</title>
+  <!-- 線上引入古風毛筆楷書 (Ma Shan Zheng) 與 典雅宋體 (Noto Serif TC) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Serif+TC:wght@400;600;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-deep: #0c0e12;
+      --bg-card: rgba(20, 24, 32, 0.88);
+      --border-gold: rgba(212, 175, 55, 0.35);
+      --gold-primary: #e6ca65;
+      --gold-light: #fff3b0;
+      --text-main: #e8e6e3;
+      --text-muted: #9ba1a6;
+      --ink-black: #050608;
+      --cinnabar-red: #c23531;
+    }
+
+    * { 
+      box-sizing: border-box; 
+      margin: 0; 
+      padding: 0; 
+      user-select: none; 
+    }
+
+    body {
+      background-color: var(--bg-deep);
+      color: var(--text-main);
+      font-family: 'Noto Serif TC', serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* 水墨流動暗色背景 */
+    .ink-bg-container {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+      background: radial-gradient(circle at 20% 30%, rgba(30, 41, 59, 0.5) 0%, transparent 60%),
+                  radial-gradient(circle at 80% 80%, rgba(45, 25, 20, 0.4) 0%, transparent 70%);
+    }
+
+    .ink-mountains {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 60%;
+      background: radial-gradient(ellipse at 25% 100%, rgba(25, 32, 42, 0.85) 0%, transparent 70%),
+                  radial-gradient(ellipse at 75% 100%, rgba(20, 25, 32, 0.8) 0%, transparent 70%);
+      filter: blur(15px);
+    }
+
+    .mist-layer-1 {
+      position: absolute;
+      bottom: -10%;
+      left: -40%;
+      width: 180%;
+      height: 50%;
+      background: radial-gradient(ellipse at center, rgba(160, 175, 195, 0.08) 0%, transparent 70%);
+      filter: blur(35px);
+      animation: mistFlow1 26s ease-in-out infinite alternate;
+    }
+
+    @keyframes mistFlow1 {
+      0% { transform: translateX(0); opacity: 0.4; }
+      100% { transform: translateX(18%); opacity: 0.75; }
+    }
+
+    /* 水墨開場遮罩 */
+    .ink-splash-overlay {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle at center, #16181d 0%, #08090b 100%);
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: opacity 1.6s cubic-bezier(0.25, 1, 0.5, 1), visibility 1.6s;
+    }
+
+    .ink-splash-overlay.fade-out {
+      opacity: 0;
+      visibility: hidden;
+      filter: blur(25px);
+    }
+
+    .splash-title {
+      font-family: 'Ma Shan Zheng', cursive;
+      font-size: 4.5rem;
+      letter-spacing: 0.35em;
+      color: var(--cinnabar-red);
+      text-shadow: 0 0 35px rgba(194, 53, 49, 0.75);
+      margin-bottom: 12px;
+    }
+
+    .splash-subtitle {
+      font-size: 1.15rem;
+      letter-spacing: 0.3em;
+      color: var(--text-muted);
+      margin-bottom: 30px;
+    }
+
+    .splash-hint {
+      font-size: 0.85rem;
+      letter-spacing: 0.25em;
+      color: rgba(230, 202, 101, 0.7);
+      border: 1px solid rgba(230, 202, 101, 0.3);
+      padding: 6px 20px;
+      border-radius: 20px;
+      animation: breathe 2s ease-in-out infinite;
+    }
+
+    @keyframes breathe {
+      0%, 100% { opacity: 0.35; }
+      50% { opacity: 1; }
+    }
+
+    /* 頂部標題與陣營分區 */
+    header {
+      width: 100%;
+      max-width: 1200px;
+      padding: 30px 20px 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 15px;
+      z-index: 10;
+    }
+
+    .main-title {
+      font-family: 'Ma Shan Zheng', cursive;
+      font-size: 3.2rem;
+      letter-spacing: 0.3em;
+      color: var(--cinnabar-red);
+      text-shadow: 0 0 25px rgba(194, 53, 49, 0.55);
+    }
+
+    .subtitle {
+      font-size: 0.95rem;
+      letter-spacing: 0.25em;
+      color: var(--text-muted);
+    }
+
+    .faction-tabs {
+      display: flex;
+      gap: 12px;
+      margin-top: 15px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .tab-btn {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: var(--text-muted);
+      padding: 6px 18px;
+      border-radius: 20px;
+      font-family: 'Noto Serif TC', serif;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .tab-btn:hover {
+      border-color: var(--gold-primary);
+      color: var(--gold-light);
+    }
+
+    .tab-btn.active {
+      background: linear-gradient(135deg, rgba(230, 202, 101, 0.2), rgba(212, 175, 55, 0.05));
+      border-color: var(--gold-primary);
+      color: var(--gold-light);
+      box-shadow: 0 0 15px rgba(230, 202, 101, 0.25);
+    }
+
+    /* 主舞台 */
+    .stage-container {
+      position: relative;
+      width: 100%;
+      max-width: 1100px;
+      min-height: 580px;
+      margin: 20px 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 20px;
+      z-index: 2;
+    }
+
+    .char-watermark {
+      position: absolute;
+      font-family: 'Ma Shan Zheng', cursive;
+      font-size: 26rem;
+      color: rgba(255, 255, 255, 0.025);
+      pointer-events: none;
+      z-index: 1;
+      transition: opacity 0.6s ease;
+    }
+
+    .showcase-card {
+      position: relative;
+      z-index: 2;
+      width: 100%;
+      background: var(--bg-card);
+      border: 1px solid var(--border-gold);
+      border-radius: 12px;
+      padding: 40px;
+      backdrop-filter: blur(14px);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+      display: grid;
+      grid-template-columns: 340px 1fr;
+      gap: 40px;
+      align-items: center;
+      transition: transform 0.35s ease, opacity 0.35s ease;
+    }
+
+    .char-visual {
+      position: relative;
+      width: 100%;
+      height: 480px;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: #11141a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .char-visual img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.6s ease;
+    }
+
+    .char-visual:hover img {
+      transform: scale(1.03);
+    }
+
+    .faction-badge {
+      position: absolute;
+      top: 15px;
+      left: 15px;
+      background: rgba(12, 14, 18, 0.85);
+      border: 1px solid var(--gold-primary);
+      color: var(--gold-light);
+      padding: 4px 10px;
+      font-size: 0.8rem;
+      border-radius: 4px;
+      letter-spacing: 0.1em;
+    }
+
+    .char-info {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .name-group {
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding-bottom: 15px;
+    }
+
+    .char-name {
+      font-family: 'Ma Shan Zheng', cursive;
+      font-size: 3.5rem;
+      color: var(--gold-light);
+      letter-spacing: 0.15em;
+    }
+
+    .char-title {
+      font-size: 1rem;
+      color: var(--text-muted);
+      letter-spacing: 0.2em;
+      margin-top: 5px;
+    }
+
+    .char-quote {
+      font-size: 1.15rem;
+      line-height: 1.8;
+      color: #f1f0ee;
+      font-style: italic;
+      position: relative;
+      padding-left: 18px;
+      border-left: 3px solid var(--cinnabar-red);
+    }
+
+    .status-panel {
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      padding: 14px 18px;
+      font-size: 0.9rem;
+      line-height: 1.6;
+    }
+
+    .status-panel span.label {
+      color: var(--gold-primary);
+      margin-right: 8px;
+      font-weight: 600;
+    }
+
+    .actions-row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+
+    .action-btn {
+      background: transparent;
+      border: 1px solid var(--border-gold);
+      color: var(--gold-light);
+      padding: 8px 18px;
+      border-radius: 6px;
+      font-family: 'Noto Serif TC', serif;
+      font-size: 0.9rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.25s ease;
+    }
+
+    .action-btn:hover {
+      background: rgba(230, 202, 101, 0.15);
+      border-color: var(--gold-primary);
+    }
+
+    .nav-arrow {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: rgba(22, 26, 34, 0.7);
+      border: 1px solid var(--border-gold);
+      color: var(--gold-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      cursor: pointer;
+      z-index: 10;
+      transition: all 0.3s ease;
+    }
+
+    .nav-arrow:hover {
+      background: var(--gold-primary);
+      color: var(--ink-black);
+      box-shadow: 0 0 15px rgba(230, 202, 101, 0.5);
+    }
+
+    .nav-arrow.prev { left: -25px; }
+    .nav-arrow.next { right: -25px; }
+
+    /* 底部頭像縮圖 */
+    .carousel-dock {
+      width: 100%;
+      max-width: 1050px;
+      padding: 20px;
+      overflow-x: auto;
+      display: flex;
+      gap: 15px;
+      scrollbar-width: thin;
+      scrollbar-color: var(--border-gold) transparent;
+      margin-bottom: 40px;
+      z-index: 5;
+    }
+
+    .carousel-item {
+      flex: 0 0 80px;
+      height: 80px;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 2px solid rgba(255, 255, 255, 0.15);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+    }
+
+    .carousel-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .carousel-item .item-name {
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+      background: rgba(0, 0, 0, 0.75);
+      color: #fff;
+      font-size: 0.75rem;
+      text-align: center;
+      padding: 2px 0;
+    }
+
+    .carousel-item.active {
+      border-color: var(--gold-primary);
+      transform: translateY(-4px);
+      box-shadow: 0 4px 15px rgba(230, 202, 101, 0.4);
+    }
+
+    /* 信箋彈窗 */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.78);
+      backdrop-filter: blur(8px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      padding: 20px;
+    }
+
+    .modal-paper {
+      background: #f4ede2;
+      color: #2b2825;
+      max-width: 500px;
+      width: 100%;
+      padding: 40px;
+      border-radius: 4px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+      position: relative;
+      line-height: 2;
+    }
+
+    .close-modal {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      cursor: pointer;
+      font-size: 1.2rem;
+      color: #666;
+    }
+
+    @media (max-width: 860px) {
+      .showcase-card { grid-template-columns: 1fr; gap: 20px; padding: 25px; }
+      .char-visual { height: 350px; }
+      .nav-arrow.prev { left: 5px; }
+      .nav-arrow.next { right: 5px; }
+      .main-title { font-size: 2.4rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 水墨動態背景層 -->
+  <div class="ink-bg-container">
+    <div class="ink-mountains"></div>
+    <div class="mist-layer-1"></div>
+  </div>
+
+  <!-- 水墨開場遮罩 -->
+  <div class="ink-splash-overlay" id="inkSplash" onclick="enterWorld()">
+    <h1 class="splash-title">問 長 年</h1>
+    <p class="splash-subtitle">萬里千峰・墨染紅塵</p>
+    <div class="splash-hint">點擊扣門・入卷</div>
+  </div>
+
+  <header>
+    <h1 class="main-title">問 長 年</h1>
+    <p class="subtitle">人物總卷・命盤牽繫</p>
+
+    <!-- 陣營選區 -->
+    <div class="faction-tabs">
+      <button class="tab-btn active" onclick="filterFaction('all')">天下全卷</button>
+      <button class="tab-btn" onclick="filterFaction('court_front')">前朝堂・權衡</button>
+      <button class="tab-btn" onclick="filterFaction('court_back')">後朝堂・禁闈</button>
+      <button class="tab-btn" onclick="filterFaction('cultivator')">仙門・修士</button>
+      <button class="tab-btn" onclick="filterFaction('divine')">上古・神靈</button>
+    </div>
+  </header>
+
+  <main class="stage-container">
+    <div class="char-watermark" id="watermark">謝</div>
+
+    <button class="nav-arrow prev" onclick="navigateChar(-1)">‹</button>
+    <button class="nav-arrow next" onclick="navigateChar(1)">›</button>
+
+    <article class="showcase-card" id="showcaseCard">
+      <div class="char-visual">
+        <span class="faction-badge" id="charFaction">仙門・劍宗</span>
+        <img id="charImage" src="" alt="角色立繪">
+      </div>
+
+      <div class="char-info">
+        <div class="name-group">
+          <h2 class="char-name" id="charName">謝雪痕</h2>
+          <p class="char-title" id="charTitle">寒潭劍主・太上忘情</p>
+        </div>
+
+        <blockquote class="char-quote" id="charQuote">
+          「劍鞘冰冷，可若你執意要靠近，莫怪霜雪染了白衣。」
+        </blockquote>
+
+        <div class="status-panel">
+          <div><span class="label">此刻行蹤</span><span id="charTime">子時初刻・深山飛雪</span></div>
+          <div style="margin-top: 4px;"><span class="label">棲身之所</span><span id="charPlace">洗劍池邊</span></div>
+          <div style="margin-top: 4px; color: #c4c8cc;" id="charAction">正撫拭隨身佩劍，忽聞空谷松濤，眉峰微動。</div>
+        </div>
+
+        <div class="actions-row">
+          <button class="action-btn" onclick="playVoice()"><span id="voiceIcon">🔊</span> 語音聆音</button>
+          <button class="action-btn" onclick="openLetter()">📜 私藏信箋</button>
+          <button class="action-btn" onclick="openToken()">📿 本命信物</button>
+        </div>
+      </div>
+    </article>
+  </main>
+
+  <!-- 底部縮圖輪播列 -->
+  <nav class="carousel-dock" id="carouselDock"></nav>
+
+  <!-- 信箋彈窗 -->
+  <div class="modal-overlay" id="letterModal" onclick="closeModal(event)">
+    <div class="modal-paper" onclick="event.stopPropagation()">
+      <span class="close-modal" onclick="closeModal()">✕</span>
+      <h3 style="font-family: 'Ma Shan Zheng', cursive; font-size: 1.8rem; margin-bottom: 15px;" id="letterDate"></h3>
+      <p id="letterContent" style="white-space: pre-line;"></p>
+      <div style="text-align: right; margin-top: 25px; font-weight: bold; color: #a32222;" id="letterSign"></div>
+    </div>
+  </div>
+
+  <script>
+    // 角色資料庫
+    const characters = [
+      {
+        id: "char_01",
+        faction: "cultivator",
+        factionName: "仙門・劍宗",
+        name: "謝雪痕",
+        title: "寒潭劍主・太上忘情",
+        watermark: "謝",
+        quote: "「劍鞘冰冷，可若你執意要靠近，莫怪霜雪染了白衣。」",
+        voiceLine: "劍鞘冰冷，可若你執意要靠近，莫怪霜雪染了白衣。今宵山寒，進屋烤烤火吧。",
+        statusTime: "子時初刻・深山飛雪",
+        statusPlace: "洗劍池邊",
+        statusAction: "正撫拭隨身佩劍，忽聞空谷松濤，眉峰微動。",
+        avatar: "https://picsum.photos/seed/xuehen/200/200",
+        fullImage: "https://picsum.photos/seed/xuehen/800/1000",
+        letterDate: "臘月廿三・松雪箋",
+        letterText: "寄於卿：\n此番閉關七十日，所悟劍意皆如浮雲，唯念及昔日於望舒亭同飲那一盞濁酒。\n山路漫漫多坎坷，若有風雪，隨時扣門。",
+        letterSign: "雪痕 墨筆",
+        tokenName: "寒泉玄冰佩",
+        tokenDesc: "取萬丈深淵寒髓琢磨而成，常年散發幽冷氣息，握之可定神靜氣、辟百邪。"
+      },
+      {
+        id: "char_02",
+        faction: "court_front",
+        factionName: "前朝堂・文淵閣",
+        name: "沈知遠",
+        title: "當朝首輔・玉衡星使",
+        watermark: "沈",
+        quote: "「萬里江山做局，入棋者，自當生死由天。但我不想讓你輸。」",
+        voiceLine: "萬里江山做局，入棋者，自當生死由天。但今夜，我不談江山，只與你飲這半壺清茶。",
+        statusTime: "亥時三刻・殘雪初霽",
+        statusPlace: "文淵閣內堂",
+        statusAction: "正在朱批天下奏章，筆鋒凝滯，似在思量一樁舊案。",
+        avatar: "https://picsum.photos/seed/zhiyuan/200/200",
+        fullImage: "https://picsum.photos/seed/zhiyuan/800/1000",
+        letterDate: "正月初五・青藤封函",
+        letterText: "見字如晤：\n廷議紛紜，百官爭執無休。人心之險，遠甚於妖魔。\n所幸今日在案頭看見你送來的清心香，方覺這長夜尚能忍受。凡事有我，切莫掛懷。",
+        letterSign: "知遠 謹啟",
+        tokenName: "墨玉機關棋子",
+        tokenDesc: "入手溫潤微涼，內藏半枚能解開宮廷密鎖的精巧密鑰。"
+      },
+      {
+        id: "char_03",
+        faction: "court_back",
+        factionName: "後朝堂・深宮",
+        name: "容歸鶴",
+        title: "司禮監掌印・暗影掌燈",
+        watermark: "容",
+        quote: "「深宮裡的人只有兩種下場：吃人的，和被吃的。你想做哪一種？」",
+        voiceLine: "深宮裡的人只有兩種下場。不過別怕，只要有我在，沒人敢在暗處動你分毫。",
+        statusTime: "酉時末・宮燈初上",
+        statusPlace: "長春宮迴廊",
+        statusAction: "手提八角琉璃宮燈，目光冷冽地注視著各宮前來打探動靜的宮人。",
+        avatar: "https://picsum.photos/seed/guihe/200/200",
+        fullImage: "https://picsum.photos/seed/guihe/800/1000",
+        letterDate: "季春望日・暗硃砂密帖",
+        letterText: "近日後廷走水，並非天災。夜半三更若聽聞梆子響三聲，萬不可開窗。\n信已閱，即刻焚毀。",
+        letterSign: "歸鶴 押",
+        tokenName: "染硃砂骨笛",
+        tokenDesc: "以靈鶴脛骨雕成，吹響時無聲無息，唯有司禮監暗衛能聞風而至。"
+      },
+      {
+        id: "char_04",
+        faction: "divine",
+        factionName: "上古・神靈",
+        name: "燭九幽",
+        title: "幽壤之主・銜燭長庚",
+        watermark: "幽",
+        quote: "「萬載滄海成桑田，眾生求長生，唯我嫌這永生太寂寥。」",
+        voiceLine: "萬載滄海成桑田。凡人如朝菌，但我卻想記住你每一次喚我名字的模樣。",
+        statusTime: "未央・萬古晦冥",
+        statusPlace: "無盡虛空之界",
+        statusAction: "眼眸微闔，周身環繞著萬年不滅的神火，正傾聽人間渺小的祝禱。",
+        avatar: "https://picsum.photos/seed/jiuyou/200/200",
+        fullImage: "https://picsum.photos/seed/jiuyou/800/1000",
+        letterDate: "太古無歷・殘金碎片",
+        letterText: "渺小之人：\n汝供奉之青梅甚甘，本尊收下了。\n天地雖大，若有一日遭逢末劫，喚本尊神名，定越黃泉渡你。",
+        letterSign: "九幽 神印",
+        tokenName: "赤金神火鱗",
+        tokenDesc: "神龍褪下的古鱗，即使投入極寒萬丈深淵，亦能常保寸步溫暖。"
+      }
+    ];
+
+    let currentFilteredList = [...characters];
+    let currentIndex = 0;
+    let currentFaction = "all";
+
+    function enterWorld() {
+      const splash = document.getElementById("inkSplash");
+      if (splash) {
+        splash.classList.add("fade-out");
+      }
+    }
+
+    function filterFaction(factionKey) {
+      currentFaction = factionKey;
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      event.target.classList.add('active');
+
+      if (factionKey === "all") {
+        currentFilteredList = [...characters];
+      } else {
+        currentFilteredList = characters.filter(c => c.faction === factionKey);
+      }
+
+      currentIndex = 0;
+      renderCarousel();
+      renderCharacter(currentIndex);
+    }
+
+    function renderCharacter(index) {
+      if (currentFilteredList.length === 0) return;
+      const char = currentFilteredList[index];
+
+      const card = document.getElementById("showcaseCard");
+      card.style.opacity = "0";
+      card.style.transform = "translateY(10px)";
+
+      setTimeout(() => {
+        document.getElementById("watermark").innerText = char.watermark;
+        document.getElementById("charFaction").innerText = char.factionName;
+        document.getElementById("charImage").src = char.fullImage;
+        document.getElementById("charName").innerText = char.name;
+        document.getElementById("charTitle").innerText = char.title;
+        document.getElementById("charQuote").innerText = char.quote;
+        document.getElementById("charTime").innerText = char.statusTime;
+        document.getElementById("charPlace").innerText = char.statusPlace;
+        document.getElementById("charAction").innerText = char.statusAction;
+
+        card.style.opacity = "1";
+        card.style.transform = "translateY(0)";
+      }, 200);
+
+      document.querySelectorAll(".carousel-item").forEach((el, i) => {
+        el.classList.toggle("active", i === index);
+      });
+    }
+
+    function renderCarousel() {
+      const dock = document.getElementById("carouselDock");
+      dock.innerHTML = "";
+      currentFilteredList.forEach((char, i) => {
+        const item = document.createElement("div");
+        item.className = `carousel-item ${i === currentIndex ? 'active' : ''}`;
+        item.onclick = () => {
+          currentIndex = i;
+          renderCharacter(currentIndex);
+        };
+        item.innerHTML = `
+          <img src="${char.avatar}" alt="${char.name}">
+          <div class="item-name">${char.name}</div>
+        `;
+        dock.appendChild(item);
+      });
+    }
+
+    function navigateChar(direction) {
+      if (currentFilteredList.length <= 1) return;
+      currentIndex = (currentIndex + direction + currentFilteredList.length) % currentFilteredList.length;
+      renderCharacter(currentIndex);
+    }
+
+    function playVoice() {
+      const char = currentFilteredList[currentIndex];
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(char.voiceLine);
+        utterance.lang = 'zh-TW';
+        utterance.rate = 0.88;
+        utterance.pitch = 0.95;
+        
+        const icon = document.getElementById("voiceIcon");
+        icon.innerText = "⏳";
+        utterance.onend = () => { icon.innerText = "🔊"; };
+        window.speechSynthesis.speak(utterance);
+      } else {
+        alert("瀏覽器尚未支援語音朗讀功能");
+      }
+    }
+
+    function openLetter() {
+      const char = currentFilteredList[currentIndex];
+      document.getElementById("letterDate").innerText = char.letterDate;
+      document.getElementById("letterContent").innerText = char.letterText;
+      document.getElementById("letterSign").innerText = char.letterSign;
+      document.getElementById("letterModal").style.display = "flex";
+    }
+
+    function openToken() {
+      const char = currentFilteredList[currentIndex];
+      alert(`【本命信物：${char.tokenName}】\n\n${char.tokenDesc}`);
+    }
+
+    function closeModal() {
+      document.getElementById("letterModal").style.display = "none";
+    }
+
+    // 啟動初始化
+    renderCarousel();
+    renderCharacter(0);
+  </script>
+</body>
+</html>
